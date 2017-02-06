@@ -18,7 +18,9 @@ class Calculator extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            previousInputValue: 0,
             inputValue: 0,
+            selectedSymbol: null
         }
     }
 
@@ -43,6 +45,7 @@ class Calculator extends Component {
             itemOne.forEach(function(itemSecond, countTwo) {
                 inputRow.push(
                     <InputButton value={itemSecond}
+                                 highlight = {self.state.selectedSymbol === itemSecond}
                                  onPress={self._onInputButtonPressed.bind(self, itemSecond)}
                                  key = {countOne + "-" + countTwo} />
                 );
@@ -56,6 +59,36 @@ class Calculator extends Component {
         switch (typeof input) {
             case 'number':
                 return this._handleNumberInput(input)
+            case 'string':
+                return this._handleStringInput(input)
+        }
+    }
+
+    _handleStringInput(str) {
+        switch (str) {
+            case '/':
+            case '*':
+            case '+':
+            case '-':
+                this.setState({
+                    selectedSymbol: str,
+                    previousInputValue: this.state.inputValue,
+                    inputValue: 0
+                });
+                break;
+            case '=':
+                let symbol = this.state.selectedSymbol,
+                    inputValue = this.state.inputValue,
+                    previousInputValue = this.state.previousInputValue;
+                if (!symbol) {
+                    return;
+                }
+                this.setState({
+                    previousInputValue: 0,
+                    inputValue: eval(previousInputValue + symbol + inputValue),
+                    selectedSymbol: null
+                });
+                break;
         }
     }
 
